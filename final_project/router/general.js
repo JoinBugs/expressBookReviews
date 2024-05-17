@@ -56,5 +56,31 @@ public_users.get('/review/:isbn',function (req, res) {
   return res.json(books.find(e => e.isbn === isbn).reviews)
 });
 
+public_users.post('/review/:isbn/:review', function (req, res) {
+    const currentUser = req.session.authorization.username;
+    const isbn = req.params.isbn;
+    const review = req.params.review;
+
+    let i_book = -1,
+        i_review = -1;
+    for(let i = 0; i < books.length; i++) {
+        if(books[i].isbn === isbn) {
+            i_book = i;
+            for(let j = 0; j < books[i].reviews.length; j++) {
+                if(books[i].reviews[j].user === currentUser) {
+                    i_review = j;
+                    break;
+                }
+            }
+        }
+    }
+    if(i_review === -1) {
+        books[i_book].reviews.push({"user": currentUser, "review": review}); 
+        return res.send("review added");    
+    }
+    books[i_book].reviews[i_review].review = review;
+    return res.send("review updated");
+});
+
 
 module.exports.general = public_users;
