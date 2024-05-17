@@ -31,6 +31,52 @@ regd_users.post("/login", (req,res) => {
     }
 });
 
+function getIBookReview(isbn, user) {
+    let i_book = -1,
+        i_review = -1;
+    for(let i = 0; i < books.length; i++) {
+        if(books[i].isbn === isbn) {
+            i_book = i;
+            for(let j = 0; j < books[i].reviews.length; j++) {
+                if(books[i].reviews[j].user === user) {
+                    i_review = j;
+                    break;
+                }
+            }
+        }
+    }
+    return {i_book, i_review};
+}
+
+regd_users.post('/auth/review/:isbn/:review', function (req, res) {
+    const currentUser = req.session.authorization.username;
+    const isbn = req.params.isbn;
+    const review = req.params.review;
+
+    let { i_book, i_review } = getIBookReview(isbn, currentUser);
+    if(i_review === -1) {
+        books[i_book].reviews.push({"user": currentUser, "review": review}); 
+        return res.send("review added");    
+    }
+    books[i_book].reviews[i_review].review = review;
+    return res.send("review updated");
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const currentUser = req.session.authorization.username;
+    const isbn = req.params.isbn;
+
+    let { i_book, i_review } = getIBookReview(isbn, currentUser);
+    if(i_book === -1) {
+        return res.send("isbn not exists");
+    }
+    if(i_review !== -1) {
+        books[i_book].reviews.splice(i_review, 1);
+        return res.send("review deleted");
+    }
+    return res.send("the user cannot delete reviews from others")
+});
+
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
