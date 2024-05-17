@@ -53,13 +53,8 @@ public_users.get('/title/:title',function (req, res) {
 public_users.get('/review/:isbn',function (req, res) {
   //Write your code here
   const isbn = req.params.isbn;
-  return res.send(books.find(e => e.isbn === isbn).reviews)
+  return res.json(books.find(e => e.isbn === isbn).reviews)
 });
 
-public_users.post('/book/:isbn',function (req, res) {
-    //Write your code here
-    const isbn = req.params.isbn;
-    return res.send(books.find(e => e.isbn === isbn).reviews)
-  });
 
 module.exports.general = public_users;
